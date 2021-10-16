@@ -1,7 +1,5 @@
 import React from 'react';
-import Main from './Main';
 import firebase from 'firebase';
-import { NavigationContainer } from '@react-navigation/native';
 import Navigate from './Navigate';
 
 const firebaseConfig = {

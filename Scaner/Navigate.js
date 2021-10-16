@@ -46,7 +46,7 @@ export default function Navigate() {
                 options={{
                     title: 'Главная',
                     headerStyle: { backgroundColor: '#14274e', height: 75 },
-                    headerTitleStyle: { fontWeight: '200', textAlign: 'center', color:'#fff' },
+                    headerTitleStyle: { fontWeight: '200', textAlign: 'center', color:'#fff' },                  
                 }}
             />
             <Stack.Screen
@@ -56,6 +56,7 @@ export default function Navigate() {
                     title: 'Редактировать профиль',
                     headerStyle: { backgroundColor: '#14274e', height: 75 },
                     headerTitleStyle: { fontWeight: '200', textAlign: 'center', marginRight: '15%', color:'#fff', fontSize: 17 },
+                    
                 }}
             />
         </Stack.Navigator>

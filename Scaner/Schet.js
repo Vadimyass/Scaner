@@ -5,10 +5,10 @@ import Form from './Form';
 import FetchData from './FetchDataPrice';
 import { useFocusEffect } from '@react-navigation/core';
 
-export default function Schet({route, navigation}) {
-  const [listOfItems, setListOfItems] = useState(route.params.Order)
+export default function Schet({Price, Order, setOrder}) {
+  const [listOfItems, setListOfItems] = useState(Order)
   const [modalWindow, setModalWindow] = useState(false)
-  const [fullPrice, setFullPrice] = useState(route.params.Price)
+  const [fullPrice, setFullPrice] = useState(Price)
   const [data, setData] = useState([]);
 
   const addHandler = (text, cost) => {
@@ -45,7 +45,7 @@ export default function Schet({route, navigation}) {
     );
   } 
   return (
-    <View style={styles.main}>
+    <View>
       <Modal visible={modalWindow}>
         <Form addHandler={addHandler} priceList={data}/>
       </Modal>
@@ -57,9 +57,7 @@ export default function Schet({route, navigation}) {
         )}
         scrollEnabled={true}
         style={styles.flatlist}/>
-        <Button title = "Выставить столу заказ" onPress = {()=>navigation.navigate('MenuTables',{
-          Nomer: route.params.Nomer, Price: fullPrice, Order: listOfItems, Key: route.params.Key
-        })}/>
+        <Button title = "Выставить столу заказ" onPress = {()=>setOrder(fullPrice, listOfItems)}/>
       </View>
     </View>
   );

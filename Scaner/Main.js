@@ -1,8 +1,9 @@
 import React, {useState, useEffect, Component} from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, Button, Modal, Dimensions, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, Button, Modal, Dimensions, Image, TouchableOpacity, AppState } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import BarcodeMask from 'react-native-barcode-mask';
 import { useFocusEffect } from '@react-navigation/core';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import FetchData from './FetchData';
 
 export default function Main({navigation}) {
@@ -15,6 +16,8 @@ export default function Main({navigation}) {
 
   const [client, setClient] = useState([1, 1, 1, 1, './assets/emptyPhoto.jpg']);
 
+  const [tableInfo, setTableInfo] = useState([])
+
   const __startCamera = async () => {
     const {status} = await BarCodeScanner.requestPermissionsAsync()
     if (status === 'granted') {
@@ -26,9 +29,29 @@ export default function Main({navigation}) {
   let value = async () => {
     setData(await FetchData());
   };
+  const checkTables = async() =>{
+    try{
+      var settings = await AsyncStorage.getItem('tableinfo')
+      if(settings != null){
+        console.log(settings)
+        setTableInfo(settings)
+      }
+    }
+    catch(e){ 
+      try{
+        const jsonValue = JSON.stringify({Nomer: 0, Price: 0, Key: '0', Order: 0})
+        setTableInfo(jsonValue)
+        await AsyncStorage.setItem('tableinfo', jsonValue)
+      }
+      catch(e){
+      }
+    }
+  }
 
   useFocusEffect( React.useCallback(() => {
     value();
+    checkTables();
+    console.log(tableInfo)
   }, []));
   if (!data) {
     return (
@@ -90,9 +113,7 @@ export default function Main({navigation}) {
           <TouchableOpacity style={styles.button} onPress={__startCamera}>
             <Text style={styles.textButton}>Просканировать</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('MenuTables',{
-            Nomer: 0, Price: 0, Key:'0', Order: []
-          })}>
+          <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('MenuTables', tableInfo)}>
             <Text style={styles.textButton}>Меню столов</Text>
           </TouchableOpacity>
         </View>
