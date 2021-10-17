@@ -33,11 +33,13 @@ export default function Main({navigation}) {
     try{
       var settings = await AsyncStorage.getItem('tableinfo')
       if(settings != null){
+        console.log("found tableinfo")
         console.log(settings)
         setTableInfo(settings)
       }
     }
     catch(e){ 
+      console.log("not found tableinfo")
       try{
         const jsonValue = JSON.stringify({Nomer: 0, Price: 0, Key: '0', Order: 0})
         setTableInfo(jsonValue)

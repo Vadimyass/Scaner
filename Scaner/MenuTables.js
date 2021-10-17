@@ -1,14 +1,41 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, View, Button, Text, FlatList, TouchableOpacity, Modal} from 'react-native';
 import Schet from './Schet'
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/core';
 
 export default function MenuTables({route, navigation}) {
 
   const [modalWindow, setModalWindow] = useState(false)
 
-  const setOrder = (Price, Order) =>{
+  const setTables = async() =>{
+    try{
+      var settings = await AsyncStorage.getItem('tableinfo')
+      if(settings != null){
+        console.log("found tableinfo")
+        console.log(settings)
+        const parsedSettings = JSON.parse(settings)
+        setTableInfo(parsedSettings)
+      }
+    }
+    catch(e){ 
+      console.log("not found tableinfo")
+      }
+  }
+
+  useFocusEffect( React.useCallback(() => {
+    setTables();
+  }, []));
+
+  const setOrder = async(Price, Order) =>{
     tableInfo[selectedTable] = {price: Price, key: tableInfo[selectedTable].key, order: Order}
+    try{
+      await AsyncStorage.setItem("tableinfo", JSON.stringify(tableInfo))
+      console.log("set tableinfo")
+    }
+    catch(e){
+      console.log(e)
+    }
     console.log("setup")
     setModalWindow(false)
   }
