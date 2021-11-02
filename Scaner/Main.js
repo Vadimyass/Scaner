@@ -84,6 +84,9 @@ export default function Main({navigation}) {
       Nomer: client[0], Name: client[1], Cost: client[2], ID: client[3],  Image: client[4]
    } )
   }
+  const ClearStorage = async() => {
+    AsyncStorage.clear();
+  }
   return (
     <View style={styles.container}>
       <Modal visible={clientModalWindow}>
@@ -117,6 +120,9 @@ export default function Main({navigation}) {
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('MenuTables', tableInfo)}>
             <Text style={styles.textButton}>Меню столов</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={ClearStorage}>
+            <Text style={styles.textButton}>Очистка сторейджа</Text>
           </TouchableOpacity>
         </View>
       )}

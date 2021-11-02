@@ -3,6 +3,7 @@ import { StyleSheet, View, Button, Text, FlatList, TouchableOpacity, Modal} from
 import Schet from './Schet'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/core';
+import Table from './Table.js'
 
 export default function MenuTables({route, navigation}) {
 
@@ -28,7 +29,8 @@ export default function MenuTables({route, navigation}) {
   }, []));
 
   const setOrder = async(Price, Order) =>{
-    tableInfo[selectedTable] = {price: Price, key: tableInfo[selectedTable].key, order: Order}
+    tableInfo[selectedTable].price = Price
+    tableInfo[selectedTable].order[selectedReceipt] = Order
     try{
       await AsyncStorage.setItem("tableinfo", JSON.stringify(tableInfo))
       console.log("set tableinfo")
@@ -41,36 +43,44 @@ export default function MenuTables({route, navigation}) {
   }
 
     const[selectedTable, setSelectedTable] = useState(0)
+    const[selectedReceipt, setSelectedReceipt] = useState(0)
 
-    const selectTable = (number) =>{
-      setSelectedTable(number)
-      console.log("Выбран стол номер ", number+1)
+    const selectTable = (table, receipt) =>{
+      setSelectedTable(table)
+      setSelectedReceipt(receipt)
+      console.log("Выбран стол номер ", table+1, "  Чек номер ", receipt+1)
       setModalWindow(true)
     }
     const [tableInfo, setTableInfo] = (useState([
-        {price: 0, key: '0', order: []},
-        {price: 0, key: '1', order: []},
-        {price: 0, key: '2', order: []},
-        {price: 0, key: '3', order: []},
-        {price: 0, key: '4', order: []}
+        {price: 0, key: '0', order: [[],[],[],[],[]]},
+        {price: 0, key: '1', order: [[],[],[],[],[]]},
+        {price: 0, key: '2', order: [[],[],[],[],[]]},
+        {price: 0, key: '3', order: [[],[],[],[],[]]},
+        {price: 0, key: '4', order: [[],[],[],[],[]]}
     ]))
 
+    const payment = async (nomer) => {
+      tableInfo[nomer].order = [[],[],[],[],[]]
+      tableInfo[nomer].price = 0
+      try{
+        await AsyncStorage.setItem("tableinfo", JSON.stringify(tableInfo))
+        console.log("set tableinfo")
+      }
+      catch(e){
+        console.log(e)
+      }
+    }
 
     return (
-      <View>
+      <View style={styles.main}>
         <Modal visible={modalWindow}>
-          <View style={styles.info}>
-            <Schet Price={tableInfo[selectedTable].price} Order={tableInfo[selectedTable].order} setOrder={setOrder}/>
+          <View style={styles.list}>
+            <Schet Price={tableInfo[selectedTable].price} Order={tableInfo[selectedTable].order[selectedReceipt]} setOrder={setOrder}/>
           </View>
         </Modal>
-        <View>
+        <View style={styles.list}>
           <FlatList data={tableInfo} renderItem={({item})=>(
-            <View>
-              <TouchableOpacity style={styles.button} onPress={()=>selectTable(parseInt(item.key))}>
-                <Text style={styles.textButton}>{parseInt(item.key)+1} столик</Text>
-              </TouchableOpacity>
-              <Text>Счет: {item.price}</Text>
-            </View>
+            <Table table={item} selectTable={selectTable} payment={payment}/>
           )}
           scrollEnabled={true}/>
         </View>
@@ -79,23 +89,10 @@ export default function MenuTables({route, navigation}) {
   }
 
 const styles = StyleSheet.create({
-  button: {
-    width: 130,
-    borderRadius: 4,
-    backgroundColor: '#14274e',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 40,
-    zIndex: 2,
-    marginBottom: 15,
-    marginTop: 15,
-    marginRight: 10,
-    marginLeft: 10
+  main:{
+    alignItems: 'center'
   },
-  textButton:{
-    color: '#fff',
-    fontWeight: 'bold',
-    textAlign: 'center'
-  },
+  list:{
+    width: "100%"
+  }
 })

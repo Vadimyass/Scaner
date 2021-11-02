@@ -49,6 +49,7 @@ export default function Schet({Price, Order, setOrder}) {
       <Modal visible={modalWindow}>
         <Form addHandler={addHandler} priceList={data}/>
       </Modal>
+      <Text style={styles.text}>Чек номер: {}</Text>
       <Text style={styles.text}>Сумма всех заказов: {fullPrice}</Text>   
       <View>
         <Button title = "Добавить заказ" onPress = {()=>setModalWindow(true)}/>
