@@ -5,10 +5,11 @@ import Form from './Form';
 import FetchData from './FetchDataPrice';
 import { useFocusEffect } from '@react-navigation/core';
 
-export default function Schet({Price, Order, setOrder}) {
+export default function Schet({FullPrice, Order, setOrder, Price, selectedReceipt}) {
   const [listOfItems, setListOfItems] = useState(Order)
   const [modalWindow, setModalWindow] = useState(false)
-  const [fullPrice, setFullPrice] = useState(Price)
+  const [fullPrice, setFullPrice] = useState(FullPrice)
+  const [price, setPrice] = useState(Price)
   const [data, setData] = useState([]);
 
   const addHandler = (text, cost) => {
@@ -19,6 +20,7 @@ export default function Schet({Price, Order, setOrder}) {
       ]
     })
     setFullPrice(fullPrice+cost)
+    setPrice(price+cost)
     setModalWindow(false);
   }
 
@@ -27,6 +29,7 @@ export default function Schet({Price, Order, setOrder}) {
       return list.filter(listOfItems => listOfItems.key != key)
     });
     setFullPrice(fullPrice-cost)
+    setPrice(price-cost)
   }
   let value = async () => {
     setData(await FetchData());
@@ -49,8 +52,9 @@ export default function Schet({Price, Order, setOrder}) {
       <Modal visible={modalWindow}>
         <Form addHandler={addHandler} priceList={data}/>
       </Modal>
-      <Text style={styles.text}>Чек номер: {}</Text>
-      <Text style={styles.text}>Сумма всех заказов: {fullPrice}</Text>   
+      <Text style={styles.text}>Чек номер: {selectedReceipt+1}</Text>
+      <Text style={styles.text}>Сумма всех чеков: {fullPrice}</Text>
+      <Text style={styles.text}>Сумма данного чека: {price}</Text>    
       <View>
         <Button title = "Добавить заказ" onPress = {()=>setModalWindow(true)}/>
         <FlatList data={listOfItems} renderItem={({item})=>(
@@ -58,7 +62,7 @@ export default function Schet({Price, Order, setOrder}) {
         )}
         scrollEnabled={true}
         style={styles.flatlist}/>
-        <Button title = "Выставить столу заказ" onPress = {()=>setOrder(fullPrice, listOfItems)}/>
+        <Button title = "Выставить столу заказ" onPress = {()=>setOrder(fullPrice, listOfItems, price)}/>
       </View>
     </View>
   );

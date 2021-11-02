@@ -3,21 +3,18 @@ import { StyleSheet, View, Button, Text, FlatList, TouchableOpacity, Modal} from
 
 export default function Form({table, selectTable, payment}) {
 
-    const [receipts, setReceipts] = useState([{nomer: 0, key: "0"}])
-    const [lastReceipt, setLastReceipt] = useState({nomer: 1})
+    const [receipts, setReceipts] = useState(table.receipts)
+    const [lastReceipt, setLastReceipt] = useState(table.lastReceipt)
     const addHandler = (receipt) => {
         setReceipts((list)=>{
           return[
             ...list,
-            {nomer: receipt, key: Math.random().toString(36).substring(7)}
-            
+            {nomer: receipt+1, key: Math.random().toString(36).substring(7), order: [], price: 0}
           ]
         })
-        setLastReceipt({nomer: receipt+1})
+        setLastReceipt(receipt+1)
       }
     const Paying = () =>{
-      setReceipts([{nomer: 0, key: '0'}])
-      setLastReceipt({nomer: 1})
       payment(parseInt(table.key))
     }
     return (
@@ -27,14 +24,14 @@ export default function Form({table, selectTable, payment}) {
                 <View style={styles.button}>
                     <Text style={styles.textButton}>{parseInt(table.key)+1}</Text>
                 </View>
-                <TouchableOpacity style={styles.miniButton} onPress={()=>addHandler(lastReceipt.nomer)}>
+                <TouchableOpacity style={styles.miniButton} onPress={()=>addHandler(lastReceipt)}>
                     <Text style={styles.textButton}>+</Text>
                 </TouchableOpacity>
             </View>
             <View style={styles.smallPanel}>
                 <FlatList data={receipts} renderItem={({item})=>(
                     <View>
-                        <TouchableOpacity style={styles.receipt} onPress={()=>selectTable(parseInt(table.key), parseInt(item.nomer))}>
+                        <TouchableOpacity style={styles.receipt} onPress={()=>selectTable(parseInt(table.key), parseInt(item.nomer), receipts, lastReceipt)}>
                             <Text style={styles.textButton}>{parseInt(item.nomer)+1}</Text>
                         </TouchableOpacity>
                     </View>
@@ -42,7 +39,7 @@ export default function Form({table, selectTable, payment}) {
                     scrollEnabled={true}
                     horizontal={true}/>  
             </View>
-            <Text>Счет: {table.price}</Text>
+            <Text>Счет: {table.fullPrice}</Text>
         </View>
     );
   }
