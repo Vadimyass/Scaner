@@ -16,10 +16,12 @@ export default function Form({table, selectTable, payment}) {
       }
     const Paying = () =>{
       payment(parseInt(table.key))
+      setReceipts([{nomer: 0, key: Math.random().toString(36).substring(7), order: [], price: 0}])
+      setLastReceipt(0)
     }
     return (
         <View style={styles.main}>
-            <Button title="test" onPress={()=>Paying()}/>
+            <Button title="test" onPress={()=>console.log(receipts)}/>
             <View style={styles.panel}>
                 <View style={styles.button}>
                     <Text style={styles.textButton}>{parseInt(table.key)+1}</Text>

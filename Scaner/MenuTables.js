@@ -3,6 +3,7 @@ import { StyleSheet, View, Button, Text, FlatList, TouchableOpacity, Modal} from
 import Schet from './Schet'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/core';
+import AppLoading from 'expo-app-loading';
 import Table from './Table.js'
 
 export default function MenuTables({route, navigation}) {
@@ -24,9 +25,9 @@ export default function MenuTables({route, navigation}) {
       }
   }
 
-  useFocusEffect( React.useCallback(() => {
-    setTables();
-  }, []));
+  //useFocusEffect( React.useCallback(() => {
+  //  setTables();
+  //}, []));
 
   const setOrder = async(fullPrice, Order, Price) =>{
     console.log("net")
@@ -66,7 +67,7 @@ export default function MenuTables({route, navigation}) {
     ]))
 
     const payment = async (nomer) => {
-      tableInfo[nomer].receipts = [{key: Math.random().toString(36).substring(7), order: [], price: 0}]
+      tableInfo[nomer].receipts = [{nomer: 0, key: Math.random().toString(36).substring(7), order: [], price: 0}]
       tableInfo[nomer].fullPrice = 0
       tableInfo[nomer].lastReceipt = 0
       try{
@@ -77,28 +78,38 @@ export default function MenuTables({route, navigation}) {
         console.log(e)
       }
     }
-
-    return (
-      <View>
-        {modalWindow ? (
-          <View style={styles.list}>
-            <Schet fullPrice ={tableInfo[selectedTable].fullPrice} 
-                  Price={tableInfo[selectedTable].receipts[selectedReceipt].price} 
-                  Order={tableInfo[selectedTable].receipts[selectedReceipt].order} 
-                  setOrder={setOrder}
-                  selectedReceipt={selectedReceipt}
-                  FullPrice={tableInfo[selectedTable].fullPrice}/>
-          </View>   
-        ) : (
-          <View style={styles.list}>
-          <FlatList data={tableInfo} renderItem={({item})=>(
-            <Table table={item} selectTable={selectTable} payment={payment}/>
+    const [loading, setLoading] = useState(true)
+    if(!loading){
+      return (
+        <View>
+          {modalWindow ? (
+            <View style={styles.list}>
+              <Schet fullPrice ={tableInfo[selectedTable].fullPrice} 
+                    Price={tableInfo[selectedTable].receipts[selectedReceipt].price} 
+                    Order={tableInfo[selectedTable].receipts[selectedReceipt].order} 
+                    setOrder={setOrder}
+                    selectedReceipt={selectedReceipt}
+                    FullPrice={tableInfo[selectedTable].fullPrice}/>
+            </View>   
+          ) : (
+            <View style={styles.list}>
+            <FlatList data={tableInfo} renderItem={({item})=>(
+              <Table table={item} selectTable={selectTable} payment={payment}/>
+            )}
+            scrollEnabled={true}/>
+          </View>
           )}
-          scrollEnabled={true}/>
         </View>
-        )}
-      </View>
-    );
+      );
+    }else{
+      return(
+        <AppLoading 
+          startAsync={setTables} 
+          onFinish={()=>setLoading(false)}
+          onError={console.warn}
+        />
+      );
+    }
   }
 
 const styles = StyleSheet.create({

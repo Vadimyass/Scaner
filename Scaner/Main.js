@@ -5,6 +5,7 @@ import BarcodeMask from 'react-native-barcode-mask';
 import { useFocusEffect } from '@react-navigation/core';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FetchData from './FetchData';
+import AppLoading from 'expo-app-loading';
 
 export default function Main({navigation}) {
 
@@ -52,7 +53,6 @@ export default function Main({navigation}) {
 
   useFocusEffect( React.useCallback(() => {
     value();
-    checkTables();
     console.log(tableInfo)
   }, []));
   if (!data) {
@@ -87,47 +87,59 @@ export default function Main({navigation}) {
   const ClearStorage = async() => {
     AsyncStorage.clear();
   }
-  return (
-    <View style={styles.container}>
-      <Modal visible={clientModalWindow}>
-        <View style={styles.info}>
-          <TouchableOpacity style={styles.button} onPress={() => setClientModalWindow(false)}>
-            <Text style={styles.textButton}>Закрыть</Text>
-          </TouchableOpacity>
-          <Text style={styles.text}>Информация о клиенте</Text>
-          <Image style={{width: 200, height: 200, borderWidth: 3, borderColor: 'black', borderRadius: 5,}} source={{uri: client[4]}}/>
-          <Text style={styles.text}>ФИО: {client[1]}</Text>
-          <Text style={styles.text}>Сумма счета: {client[2]}</Text>
-          <Text style={styles.text}>ID: {client[3]}</Text>
-          <TouchableOpacity style={styles.button} onPress={goToRedact}>
-            <Text style={styles.textButton}>Редактировать</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-      {startCamera ? (
-            <BarCodeScanner
-              onBarCodeScanned={(scan) => testID(scan.type, scan.data)}
-              style={styles.scan}>
-              <TouchableOpacity style={styles.button} onPress={()=>setStartCamera(false)}>
-                <Text style={styles.textButton}>Закрыть</Text>
-              </TouchableOpacity>
-              <BarcodeMask edgeColor="#62B1F6" showAnimatedLine height={150}/>
-            </BarCodeScanner>      
-      ) : (
-        <View style={styles.container}>
-          <TouchableOpacity style={styles.button} onPress={__startCamera}>
-            <Text style={styles.textButton}>Просканировать</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('MenuTables', tableInfo)}>
-            <Text style={styles.textButton}>Меню столов</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={ClearStorage}>
-            <Text style={styles.textButton}>Очистка сторейджа</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  );
+  const[loading, setLoading] = useState(true)
+  if(!loading)
+  {
+    return (
+      <View style={styles.container}>
+        <Modal visible={clientModalWindow}>
+          <View style={styles.info}>
+            <TouchableOpacity style={styles.button} onPress={() => setClientModalWindow(false)}>
+              <Text style={styles.textButton}>Закрыть</Text>
+            </TouchableOpacity>
+            <Text style={styles.text}>Информация о клиенте</Text>
+            <Image style={{width: 200, height: 200, borderWidth: 3, borderColor: 'black', borderRadius: 5,}} source={{uri: client[4]}}/>
+            <Text style={styles.text}>ФИО: {client[1]}</Text>
+            <Text style={styles.text}>Сумма счета: {client[2]}</Text>
+            <Text style={styles.text}>ID: {client[3]}</Text>
+            <TouchableOpacity style={styles.button} onPress={goToRedact}>
+              <Text style={styles.textButton}>Редактировать</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+        {startCamera ? (
+              <BarCodeScanner
+                onBarCodeScanned={(scan) => testID(scan.type, scan.data)}
+                style={styles.scan}>
+                <TouchableOpacity style={styles.button} onPress={()=>setStartCamera(false)}>
+                  <Text style={styles.textButton}>Закрыть</Text>
+                </TouchableOpacity>
+                <BarcodeMask edgeColor="#62B1F6" showAnimatedLine height={150}/>
+              </BarCodeScanner>      
+        ) : (
+          <View style={styles.container}>
+            <TouchableOpacity style={styles.button} onPress={__startCamera}>
+              <Text style={styles.textButton}>Просканировать</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('MenuTables', tableInfo)}>
+              <Text style={styles.textButton}>Меню столов</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={ClearStorage}>
+              <Text style={styles.textButton}>Очистка сторейджа</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
+  }else{
+    return(
+      <AppLoading 
+          startAsync={checkTables} 
+          onFinish={()=>setLoading(false)}
+          onError={console.warn}
+        />
+    );
+  }
 }
 
 const styles = StyleSheet.create({
