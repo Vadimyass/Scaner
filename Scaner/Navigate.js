@@ -43,7 +43,7 @@ export default function Navigate() {
                 name="MenuTables"
                 component={MenuTables}
                 options={{
-                    title: 'Главная',
+                    title: '',
                     headerStyle: { backgroundColor: '#14274e', height: 100 },
                     headerTitleStyle: { fontWeight: '200', textAlign: 'center', color:'#fff' },                  
                 }}

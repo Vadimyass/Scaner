@@ -47,7 +47,6 @@ export default function MenuTables({route, navigation}) {
 
     const[selectedTable, setSelectedTable] = useState(0)
     const[selectedReceipt, setSelectedReceipt] = useState(0)
-    const[selectedReceiptModal, setSelectedReceiptModal] = useState(0)
 
     const selectTable = (table, recNomer, receipts, lastReceipt) =>{
       setSelectedTable(table)
@@ -55,7 +54,6 @@ export default function MenuTables({route, navigation}) {
       console.log("Выбран стол номер ", table+1, "  Чек номер ", recNomer+1)
       tableInfo[selectedTable].receipts = receipts
       tableInfo[selectedTable].lastReceipt = lastReceipt
-      setSelectedReceiptModal(selectedReceipt)
       setModalWindow(true)
     }
     const [tableInfo, setTableInfo] = (useState([
@@ -66,10 +64,11 @@ export default function MenuTables({route, navigation}) {
         {fullPrice: 0, key: '4', lastReceipt: 0, receipts: [{nomer: 0, key: "44tr4ty", order: [], price: 0}]},
     ]))
 
-    const payment = async (nomer) => {
-      tableInfo[nomer].receipts = [{nomer: 0, key: Math.random().toString(36).substring(7), order: [], price: 0}]
-      tableInfo[nomer].fullPrice = 0
-      tableInfo[nomer].lastReceipt = 0
+    const payment = async (table, receipt) => {
+      tableInfo[table].fullPrice = tableInfo[table].fullPrice - tableInfo[table].receipts[receipt].price
+      tableInfo[table].receipts[receipt].order = []
+      tableInfo[table].receipts[receipt].price = 0
+      tableInfo[table].lastReceipt = 0
       try{
         await AsyncStorage.setItem("tableinfo", JSON.stringify(tableInfo))
         console.log("set tableinfo")
@@ -77,6 +76,7 @@ export default function MenuTables({route, navigation}) {
       catch(e){
         console.log(e)
       }
+      setModalWindow(false)
     }
     const [loading, setLoading] = useState(true)
     if(!loading){
@@ -89,7 +89,9 @@ export default function MenuTables({route, navigation}) {
                     Order={tableInfo[selectedTable].receipts[selectedReceipt].order} 
                     setOrder={setOrder}
                     selectedReceipt={selectedReceipt}
-                    FullPrice={tableInfo[selectedTable].fullPrice}/>
+                    FullPrice={tableInfo[selectedTable].fullPrice}
+                    paying={payment}
+                    table={selectedTable}/>
             </View>   
           ) : (
             <View style={styles.list}>

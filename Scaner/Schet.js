@@ -4,9 +4,11 @@ import ListItem from './ListItem';
 import Form from './Form';
 import FetchData from './FetchDataPrice';
 import { useFocusEffect } from '@react-navigation/core';
+import Payment from './Payment';
 
-export default function Schet({FullPrice, Order, setOrder, Price, selectedReceipt}) {
+export default function Schet({FullPrice, Order, setOrder, Price, selectedReceipt, paying, table}) {
   const [listOfItems, setListOfItems] = useState(Order)
+  const [openedSchet, setOpenedSchet] = useState(false)
   const [modalWindow, setModalWindow] = useState(false)
   const [fullPrice, setFullPrice] = useState(FullPrice)
   const [price, setPrice] = useState(Price)
@@ -21,7 +23,7 @@ export default function Schet({FullPrice, Order, setOrder, Price, selectedReceip
     })
     setFullPrice(fullPrice+cost)
     setPrice(price+cost)
-    setModalWindow(false);
+    setOpenedSchet(false);
   }
 
   const deleteHandler = (cost, key) => {
@@ -30,6 +32,11 @@ export default function Schet({FullPrice, Order, setOrder, Price, selectedReceip
     });
     setFullPrice(fullPrice-cost)
     setPrice(price-cost)
+  }
+
+  const pay = (table, receipt) =>{
+    setModalWindow(false)
+    paying(table, receipt)
   }
   let value = async () => {
     setData(await FetchData());
@@ -47,25 +54,34 @@ export default function Schet({FullPrice, Order, setOrder, Price, selectedReceip
       />
     );
   } 
+  if(!modalWindow){
   return (
     <View>
-      <Modal visible={modalWindow}>
+      {openedSchet ? (
+      <View> 
         <Form addHandler={addHandler} priceList={data}/>
-      </Modal>
-      <Text style={styles.text}>Чек номер: {selectedReceipt+1}</Text>
-      <Text style={styles.text}>Сумма всех чеков: {fullPrice}</Text>
-      <Text style={styles.text}>Сумма данного чека: {price}</Text>    
-      <View>
-        <Button title = "Добавить заказ" onPress = {()=>setModalWindow(true)}/>
-        <FlatList data={listOfItems} renderItem={({item})=>(
-          <ListItem el={item} deleteHandler={deleteHandler}/>
-        )}
-        scrollEnabled={true}
-        style={styles.flatlist}/>
-        <Button title = "Выставить столу заказ" onPress = {()=>setOrder(fullPrice, listOfItems, price)}/>
       </View>
-    </View>
-  );
+      ) : (
+      <View>
+        <Text style={styles.text}>Чек номер: {selectedReceipt+1}</Text>
+        <Text style={styles.text}>Сумма всех чеков: {fullPrice}</Text>
+        <Text style={styles.text}>Сумма данного чека: {price}</Text>    
+        <View>
+          <Button title = "Добавить заказ" onPress = {()=>setOpenedSchet(true)}/>
+          <FlatList data={listOfItems} renderItem={({item})=>(
+            <ListItem el={item} deleteHandler={deleteHandler}/>)} scrollEnabled={true} style={styles.flatlist}/>
+          <Button title = "Выставить столу заказ" onPress = {()=>setOrder(fullPrice, listOfItems, price)}/>
+          <Button title = "Оплатить чек" onPress = {()=>setModalWindow(true)}/>
+        </View>
+      </View>
+      )} 
+      </View> 
+  );}
+  else{
+    return(
+      <Payment pay={pay} table={table} receipt={selectedReceipt} order={listOfItems} cost={price}/>
+    );
+  }
 }
 const styles = StyleSheet.create({
   text:{
@@ -74,7 +90,7 @@ const styles = StyleSheet.create({
   },
   flatlist:{
     width: '100%',
-    height: '75%',
+    height: '65%',
     paddingTop: 35,
     paddingBottom: 35,
     borderRadius: 0,
